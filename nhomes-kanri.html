@@ -1,0 +1,762 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<title>N Homes 管理用</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="N Homes">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=BIZ+UDPGothic:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#edf0f4;--surface:#ffffff;--ink:#14213d;--sub:#5b6577;--line:#d5dae1;
+  --accent:#ffc300;--pos:#17755a;--neg:#c0392b;--sale:#2a5fa8;--exp:#b5651d;
+  --hdr-bg:#14213d;--hdr-fg:#ffffff;--soft:#f5f7fa;
+  box-sizing:border-box;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0f1420;--surface:#181f2e;--ink:#e9edf5;--sub:#9aa5b8;--line:#2b3448;
+    --pos:#4fd1a1;--neg:#ff8a7a;--sale:#7fb1f0;--exp:#e8a25c;--soft:#1f2739;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0f1420;--surface:#181f2e;--ink:#e9edf5;--sub:#9aa5b8;--line:#2b3448;
+  --pos:#4fd1a1;--neg:#ff8a7a;--sale:#7fb1f0;--exp:#e8a25c;--soft:#1f2739;
+}
+html{scroll-padding-top:env(safe-area-inset-top,0px);overscroll-behavior-y:none;height:100%}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"BIZ UDPGothic","Hiragino Kaku Gothic ProN","Noto Sans JP",Meiryo,sans-serif;font-size:16px;line-height:1.55;padding-bottom:84px;overscroll-behavior-y:none;min-height:100%}
+button,input,select{font:inherit;color:var(--ink)}
+header.app{position:sticky;top:0;z-index:5;background:var(--hdr-bg);color:var(--hdr-fg);padding:calc(11px + env(safe-area-inset-top,0px)) 16px 11px;display:flex;align-items:baseline;gap:10px}
+header.app b{font-size:19px;letter-spacing:.02em;border-bottom:3px solid var(--accent);padding-bottom:1px}
+header.app span{font-size:12px;color:#b9c3d6}
+header.app em{margin-left:auto;font-style:normal;font-size:11px;color:#14213d;background:var(--accent);padding:1px 8px;border-radius:10px}
+main{padding:14px;max-width:760px;margin:0 auto}
+nav{position:fixed;left:0;right:0;bottom:0;z-index:6;background:var(--hdr-bg);display:flex;padding-bottom:env(safe-area-inset-bottom,0px)}
+nav button{flex:1;background:none;border:0;color:#b9c3d6;padding:12px 0 11px;font-size:13px;box-shadow:inset 0 3px 0 transparent;cursor:pointer}
+nav button.on{color:var(--accent);box-shadow:inset 0 3px 0 var(--accent);font-weight:700}
+h2{font-size:17px;margin:20px 0 8px}
+h2:first-child{margin-top:4px}
+.note{font-size:12.5px;color:var(--sub);margin:4px 0 10px}
+.blk{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:12px;margin-bottom:12px}
+.blk.site{border-left:5px solid var(--accent)}
+.blk.oth{border-left:5px solid var(--exp)}
+.blk h3{margin:0 0 8px;font-size:15px;display:flex;align-items:center;gap:8px}
+.blk h3 .rm{margin-left:auto}
+input[type=text],input[type=number],input[type=date],select{width:100%;padding:10px;border:1px solid var(--line);border-radius:6px;background:var(--surface);font-size:16px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}
+label.f{display:block;font-size:12.5px;color:var(--sub)}
+label.f input{margin-top:3px}
+.line{display:flex;flex-wrap:wrap;gap:6px;align-items:center;padding:8px 0;border-top:1px dashed var(--line)}
+.line select:nth-child(1){width:78px;flex:none}
+.line select:nth-child(2){flex:1;min-width:120px}
+.line input[type=number]{width:112px;flex:none}
+.line.sales select:nth-child(1){border-color:var(--sale);color:var(--sale)}
+.line.expense select:nth-child(1){border-color:var(--exp);color:var(--exp)}
+.chk{font-size:13px;display:flex;align-items:center;gap:4px}
+.th{width:36px;height:36px;object-fit:cover;border-radius:4px;border:1px solid var(--line)}
+.btn{display:inline-block;background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:9px 12px;font-size:14px;cursor:pointer;text-align:center}
+.btn.pri{background:var(--accent);border-color:var(--accent);color:#14213d;font-weight:700}
+.btn.ink{background:var(--hdr-bg);border-color:var(--hdr-bg);color:#fff}
+.btn.sm{padding:5px 10px;font-size:13px}
+.btn.danger{color:var(--neg);border-color:var(--neg)}
+.x{border:0;background:none;font-size:20px;color:var(--sub);cursor:pointer;padding:0 6px}
+.acts{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.pend{display:flex;gap:10px;background:var(--soft);border-radius:8px;padding:10px;margin-top:8px}
+.pth{width:72px;height:96px;object-fit:cover;border-radius:6px;flex:none;border:1px solid var(--line)}
+.pbody{flex:1;display:flex;flex-direction:column;gap:6px;min-width:0}
+.ask{font-size:14px;font-weight:700}
+.seg{display:flex;gap:8px}
+.seg button{flex:1}
+.badge{font-size:12.5px;color:var(--pos);font-weight:700}
+.badge.man{color:var(--sub);font-weight:400}
+.sumbar{position:sticky;bottom:calc(58px + env(safe-area-inset-bottom,0px));background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:10px 12px;display:flex;justify-content:space-between;gap:8px;font-size:13px;margin:12px 0;box-shadow:0 -2px 0 var(--bg)}
+.sumbar div{text-align:right}
+.sumbar b{display:block;font-size:16px}
+.pos{color:var(--pos)}.neg{color:var(--neg)}
+.mnav{display:flex;align-items:center;justify-content:center;gap:16px;margin-bottom:10px}
+.mnav strong{font-size:17px;min-width:110px;text-align:center}
+.mnav button{background:var(--surface);border:1px solid var(--line);border-radius:6px;width:40px;height:36px;font-size:18px;cursor:pointer}
+.tw{overflow-x:auto;border:1px solid var(--line);border-radius:8px;background:var(--surface)}
+.tbl{border-collapse:collapse;font-size:13px;white-space:nowrap;width:100%}
+.tbl th,.tbl td{padding:8px 10px;text-align:right;border-bottom:1px solid var(--line)}
+.tbl th:first-child,.tbl td:first-child{position:sticky;left:0;background:var(--surface);text-align:left;z-index:1}
+.tbl thead th{background:var(--soft);font-weight:700}
+.tbl thead th.gs{color:var(--sale);border-bottom:2px solid var(--sale);text-align:center}
+.tbl thead th.ge{color:var(--exp);border-bottom:2px solid var(--exp);text-align:center}
+.tbl tr.day{cursor:pointer}
+.tbl tr.day:hover td{background:var(--soft)}
+.tbl tr.day:hover td:first-child{background:var(--soft)}
+.tbl td.tot{font-weight:700}
+.tbl tfoot td{font-weight:700;background:var(--soft)}
+.tbl tfoot td:first-child{background:var(--soft)}
+.tbl tr[hidden]{display:none}
+.det{white-space:normal}
+.det td{text-align:left!important;background:var(--soft)!important;position:static!important;padding:8px 10px!important}
+.dsite{margin-bottom:6px;font-size:12px}
+.dsite b{font-size:12.5px}
+.dsite ul{margin:2px 0 0;padding-left:14px}
+.dsite li{margin:1px 0;line-height:1.4}
+.dsite img{width:24px;height:24px;object-fit:cover;border-radius:3px;vertical-align:middle;margin-left:4px}
+.kpis{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.kpi{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:10px 12px}
+.kpi small{display:block;color:var(--sub);font-size:12px}
+.kpi b{font-size:19px}
+.trend{display:flex;align-items:flex-end;gap:8px;height:150px;padding:6px 0}
+.tm{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;gap:4px}
+.tb{display:flex;align-items:flex-end;gap:3px;height:112px}
+.tb i{display:block;width:14px;border-radius:3px 3px 0 0;min-height:1px}
+.tb i.s{background:var(--sale)}.tb i.e{background:var(--exp)}
+.tm small{font-size:11.5px;color:var(--sub)}
+.tm em{font-style:normal;font-size:11.5px;font-weight:700}
+.legend{font-size:12px;color:var(--sub);display:flex;gap:12px}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:4px}
+.hb{display:grid;grid-template-columns:98px 1fr auto;gap:8px;align-items:center;font-size:13.5px;margin:6px 0}
+.hb .bar{background:var(--soft);border-radius:4px;height:14px;overflow:hidden}
+.hb .bar i{display:block;height:100%;border-radius:4px}
+.hb span:last-child{text-align:right;white-space:nowrap}
+.ccard{display:flex;justify-content:space-between;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:10px 12px;margin-bottom:8px}
+.ccard.on{border-color:var(--accent);box-shadow:inset 4px 0 0 var(--accent)}
+#invdoc{background:#fff;color:#111;border:1px solid var(--line);border-radius:4px;padding:22px 18px;margin-top:12px}
+#invdoc h1{font-size:22px;margin:0 0 4px;letter-spacing:.3em}
+#invdoc .meta{display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;font-size:13px;margin:12px 0}
+#invdoc table{width:100%;border-collapse:collapse;font-size:13px;margin-top:10px}
+#invdoc th,#invdoc td{border-bottom:1px solid #ccc;padding:6px 4px;text-align:left}
+#invdoc td.r,#invdoc th.r{text-align:right}
+#invdoc .total{margin-top:14px;text-align:right;font-size:18px;font-weight:700;border-top:2px solid #111;padding-top:8px}
+.catrow{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:8px 0;border-top:1px dashed var(--line);font-size:14px}
+.catrow small{color:var(--sub)}
+.addrow{display:flex;gap:8px;margin-top:8px}
+.tag{font-size:10.5px;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:0 6px;color:var(--sub)}
+#toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(76px + env(safe-area-inset-bottom,0px));background:var(--hdr-bg);color:#fff;padding:10px 16px;border-radius:20px;font-size:14px;z-index:20;opacity:0;pointer-events:none;transition:opacity .2s}
+#toast.show{opacity:1}
+.empty{text-align:center;color:var(--sub);padding:28px 8px}
+@media print{
+  body *{visibility:hidden}
+  #invdoc,#invdoc *{visibility:visible}
+  #invdoc{position:absolute;left:0;top:0;width:100%;border:0;margin:0}
+}
+/*fixshift*/html,body{overflow-x:hidden;max-width:100%}body{touch-action:pan-y}input,select,textarea{font-size:16px!important}.card,.blk{max-width:100%;box-sizing:border-box}
+
+#login{position:fixed;inset:0;background:var(--bg);z-index:60;display:flex;align-items:flex-start;justify-content:center;overflow:auto;padding:calc(24px + env(safe-area-inset-top,0px)) 16px 24px}
+#login[hidden]{display:none}
+.lcard{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:20px;width:100%;max-width:400px;margin-top:6vh;box-sizing:border-box}
+.lbrand{display:flex;align-items:baseline;gap:10px;margin-bottom:6px}.lbrand b{font-size:24px;letter-spacing:.02em;border-bottom:3px solid var(--accent)}.lbrand span{color:var(--sub)}
+.lcard h2{margin:14px 0 8px}.lcard .f{display:block;margin-bottom:12px}
+input[type=password]{width:100%;padding:10px;border:1px solid var(--line);border-radius:6px;background:var(--surface);font-size:16px;box-sizing:border-box}
+.err{color:var(--neg);min-height:20px;margin:0 0 8px;font-size:14px}
+.demo{background:#fff6d6;border:1px solid #f0d878;border-radius:6px;padding:8px 10px;color:#5a4700}
+.okbox{background:#e3f4ec;border:1px solid #9fd3bb;color:#0f5a44;border-radius:6px;padding:10px 12px;margin:8px 0;font-weight:bold}
+.who{color:var(--sub);font-weight:normal;font-size:11px}
+.mbtn{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+nav button{padding-left:2px;padding-right:2px;font-size:14px}
+select{width:100%}
+</style>
+</head>
+<body>
+<header class="app"><b>N Homes</b><span>管理用</span><em id="hme"></em></header>
+<div id="login" hidden></div>
+<main>
+  <div class="view" id="v-reg"></div>
+  <div class="view" id="v-list" hidden></div>
+  <div class="view" id="v-ana" hidden></div>
+  <div class="view" id="v-inv" hidden></div>
+  <div class="view" id="v-cat" hidden></div>
+  <div class="view" id="v-set" hidden></div>
+</main>
+<nav>
+  <button data-t="reg" class="on" onclick="go('reg')">登録</button>
+  <button data-t="list" onclick="go('list')">日報</button>
+  <button data-t="ana" onclick="go('ana')">分析</button>
+  <button data-t="inv" onclick="go('inv')">請求書</button>
+  <button data-t="cat" onclick="go('cat')">項目</button>
+  <button data-t="set" onclick="go('set')">設定</button>
+</nav>
+<div id="toast"></div>
+
+<script>
+
+const $=s=>document.querySelector(s);
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const yen=n=>'¥'+Math.round(n).toLocaleString('ja-JP');
+const pad=n=>String(n).padStart(2,'0');
+const iso=d=>d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());
+const TODAY=iso(new Date());
+const dayDiff=(a,b)=>Math.round((new Date(b)-new Date(a))/864e5);
+const T={sales:'売上',expense:'経費'};
+const WD=['日','月','火','水','木','金','土'];
+const norm=s=>String(s||'').replace(/[\s\u3000]/g,'').toLowerCase();
+const mLabel=m=>{const [y,mm]=m.split('-');return y+'年'+(+mm)+'月'};
+
+function seed(a){return a.map(n=>({name:n,last:TODAY,count:0}))}
+let store={reports:{},cats:{sales:seed(['引っ越し本体','貿易商品','スクラップ','その他']),expense:seed(['ゴミ処分費','人件費','車両交通費','その他'])},learned:{},contractors:[]};
+let flash='';
+function persist(){PF.saveMeta('cats',store.cats);PF.saveMeta('learned',store.learned);PF.saveMeta('contractors',store.contractors)}
+let tt;function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('show');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('show'),2000)}
+
+/* ---- 項目（使用頻度で並び替え・1か月未使用で自動非表示） ---- */
+function catVisible(c){return c.name==='その他'||dayDiff(c.last,TODAY)<=30}
+function visCats(t){return store.cats[t].filter(catVisible).sort((a,b)=>((a.name==='その他')-(b.name==='その他'))||(b.count-a.count))}
+function useCat(t,n){let c=store.cats[t].find(x=>x.name===n);if(!c){c={name:n,last:TODAY,count:0};store.cats[t].push(c)}c.last=TODAY;c.count++}
+
+/* ---- 下書き ---- */
+function newSite(){return {contractor:'',name:'',lines:[],pending:[]}}
+function newDraft(d){return {date:d||TODAY,sites:[newSite()],other:{lines:[],pending:[]}}}
+let draft=newDraft();
+const card=ci=>ci==='o'?draft.other:draft.sites[+ci];
+let tab='reg',mon=TODAY.slice(0,7),openDay=null,arm=null,invSel=null;
+
+function go(t){
+  tab=t;
+  document.querySelectorAll('.view').forEach(v=>v.hidden=v.id!=='v-'+t);
+  document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('on',b.dataset.t===t));
+  render();window.scrollTo(0,0);
+}
+function render(){({reg:renderReg,list:renderList,ana:renderAna,inv:renderInv,cat:renderCat,set:renderSet})[tab]()}
+function shift(d){const [y,m]=mon.split('-').map(Number);const dt=new Date(y,m-1+d,1);mon=dt.getFullYear()+'-'+pad(dt.getMonth()+1);invSel=null;render()}
+const mnav=()=>`<div class="mnav"><button onclick="shift(-1)" aria-label="前の月">‹</button><strong>${mLabel(mon)}</strong><button onclick="shift(1)" aria-label="次の月">›</button></div>`;
+
+/* ================= 登録画面 ================= */
+function lineRow(ci,i,l){
+  const opts=visCats(l.type).map(c=>c.name);
+  if(l.cat&&!opts.includes(l.cat))opts.push(l.cat);
+  const isOther=l.cat==='その他';
+  return `<div class="line ${l.type}">
+    <select onchange="setLine('${ci}',${i},'type',this.value)"><option value="sales" ${l.type==='sales'?'selected':''}>売上</option><option value="expense" ${l.type==='expense'?'selected':''}>経費</option></select>
+    <select onchange="setLine('${ci}',${i},'cat',this.value)">${opts.map(o=>`<option ${o===l.cat?'selected':''}>${esc(o)}</option>`).join('')}</select>
+    ${isOther?`<input type="text" placeholder="項目名を入力" value="${esc(l.customName||'')}" oninput="setLine('${ci}',${i},'customName',this.value)" style="flex:1;min-width:110px">`:''}
+    <input type="number" inputmode="numeric" placeholder="金額" value="${l.amount||''}" oninput="setLine('${ci}',${i},'amount',this.value)">
+    ${l.type==='sales'&&ci!=='o'?`<label class="chk"><input type="checkbox" ${l.invoice?'checked':''} onchange="setLine('${ci}',${i},'invoice',this.checked)">会社請求</label>`:''}
+    ${l.thumb?`<img class="th" src="${l.thumb}" alt="伝票">`:''}
+    <button class="x" onclick="delLine('${ci}',${i})" aria-label="この行を削除">×</button>
+  </div>`;
+}
+function pendHTML(ci,j,p){
+  let body='';
+  if(!p.type){
+    body=`<div class="ask">この書類は何ですか？</div><div class="seg"><button class="btn" onclick="setPT('${ci}',${j},'sales')">売上</button><button class="btn" onclick="setPT('${ci}',${j},'expense')">経費</button></div>`;
+  }else{
+    const cats=visCats(p.type).map(c=>c.name);
+    if(p.cat&&!cats.includes(p.cat))cats.push(p.cat);
+    body=`<div class="${p.auto?'badge':'badge man'}">${p.auto?'前回の回答から自動判別':'選択中'}：${T[p.type]}</div>
+      <div class="seg"><select onchange="setP('${ci}',${j},'cat',this.value)">${cats.map(c=>`<option ${c===p.cat?'selected':''}>${esc(c)}</option>`).join('')}</select><button class="btn sm" onclick="resetPT('${ci}',${j})">変更</button></div>
+      <div class="seg"><button class="btn pri" onclick="addP('${ci}',${j})">この内容で追加</button><button class="btn" onclick="delP('${ci}',${j})">破棄</button></div>`;
+  }
+  return `<div class="pend"><img class="pth" src="${p.thumb}" alt="撮影した書類">
+    <div class="pbody">
+      <input type="text" placeholder="発行元（例：〇〇処分場）" value="${esc(p.issuer)}" oninput="setP('${ci}',${j},'issuer',this.value,true)" onchange="learnP('${ci}',${j})">
+      <input type="number" inputmode="numeric" placeholder="金額" value="${p.amount}" oninput="setP('${ci}',${j},'amount',this.value,true)">
+      ${body}
+      ${!p.type?`<button class="btn sm" onclick="delP('${ci}',${j})">破棄</button>`:''}
+    </div></div>`;
+}
+function cardBody(ci,c){
+  return `${c.lines.map((l,i)=>lineRow(ci,i,l)).join('')}
+    ${c.pending.map((p,j)=>pendHTML(ci,j,p)).join('')}
+    <div class="acts">
+      <button class="btn sm" onclick="addLine('${ci}')">＋ 金額を手入力</button>
+      <label class="btn sm pri">伝票を撮る／選ぶ<input type="file" accept="image/*" multiple hidden onchange="photos('${ci}',this.files);this.value=''"></label>
+    </div>`;
+}
+function renderReg(){
+  const exists=store.reports[draft.editId||(draft.date+'_'+ME.uid)];
+  const dl=`<datalist id="cons">${store.contractors.map(c=>`<option value="${esc(c)}">`).join('')}</datalist>`;
+  $('#v-reg').innerHTML=`
+    <h2>日報を登録</h2>${flash?`<div class="okbox">${esc(flash)}</div>`:''}
+    <label class="f">日付<input type="date" value="${draft.date}" onchange="draft.date=this.value;draft.editId=null;renderReg()"></label>
+    ${exists?`<p class="note">この日の日報はすでにあります。保存すると上書きされます。</p>`:''}
+    <div style="height:10px"></div>
+    ${dl}
+    ${draft.sites.map((s,i)=>`
+      <div class="blk site">
+        <h3>${i+1}件目の現場 ${draft.sites.length>1?`<button class="btn sm rm" onclick="delSite(${i})">この現場を削除</button>`:''}</h3>
+        <div class="row2">
+          <label class="f">元請け会社<input type="text" list="cons" value="${esc(s.contractor)}" oninput="draft.sites[${i}].contractor=this.value" placeholder="例：A建設"></label>
+          <label class="f">現場名<input type="text" value="${esc(s.name)}" oninput="draft.sites[${i}].name=this.value" placeholder="例：〇〇マンション"></label>
+        </div>
+        ${cardBody(String(i),s)}
+      </div>`).join('')}
+    <button class="btn" style="width:100%;margin-bottom:12px" onclick="addSite()">＋ 現場を追加</button>
+    <div class="blk oth">
+      <h3>その他の経費・売上</h3>
+      <p class="note" style="margin-top:0">ゴミ処分費、ガソリン代、人件費など、現場に紐づけない分。レシートは何枚でもまとめて撮れます。</p>
+      ${cardBody('o',draft.other)}
+    </div>
+    <div class="sumbar" id="sum"></div>
+    <button class="btn pri" style="width:100%;padding:13px" onclick="saveReport()">この日の日報を保存</button>
+    <p class="note">写真の文字の自動読み取りは、まだありません。発行元と金額を入力してください。同じ発行元は、次回から売上・経費の判別を覚えています。</p>`;
+  updateSum();
+}
+function draftTotals(){let s=0,e=0;[...draft.sites,draft.other].forEach(c=>c.lines.forEach(l=>{if(l.type==='sales')s+=+l.amount||0;else e+=+l.amount||0}));return{s,e}}
+function updateSum(){
+  const el=$('#sum');if(!el)return;const t=draftTotals();const p=t.s-t.e;
+  el.innerHTML=`<div>売上<b>${yen(t.s)}</b></div><div>経費<b>${yen(t.e)}</b></div><div>この日の収支<b class="${p>=0?'pos':'neg'}">${yen(p)}</b></div>`;
+}
+function addSite(){flash='';draft.sites.push(newSite());renderReg()}
+function delSite(i){draft.sites.splice(i,1);renderReg()}
+function addLine(ci){flash='';const t=ci==='o'?'expense':'sales';card(ci).lines.push({type:t,cat:visCats(t)[0].name,amount:'',invoice:t==='sales'&&ci!=='o',thumb:'',issuer:''});renderReg()}
+function delLine(ci,i){card(ci).lines.splice(i,1);renderReg()}
+function setLine(ci,i,k,v){
+  const l=card(ci).lines[i];
+  if(k==='amount'){l.amount=+v;updateSum();return}
+  if(k==='customName'){l.customName=v;return}
+  l[k]=v;
+  if(k==='cat'&&v!=='その他')l.customName='';
+  if(k==='type'){l.cat=visCats(v)[0].name;l.invoice=v==='sales'&&ci!=='o';l.customName='';renderReg()}else if(k==='cat')renderReg();else updateSum();
+}
+function thumb(file){return new Promise(res=>{const fr=new FileReader();fr.onload=()=>{const im=new Image();im.onload=()=>{const w=200,s=w/im.width,c=document.createElement('canvas');c.width=w;c.height=Math.round(im.height*s);c.getContext('2d').drawImage(im,0,0,c.width,c.height);res(c.toDataURL('image/jpeg',.6))};im.onerror=()=>res('');im.src=fr.result};fr.onerror=()=>res('');fr.readAsDataURL(file)})}
+async function photos(ci,files){
+  flash='';
+  for(const f of Array.from(files)){const t=await thumb(f);if(t)card(ci).pending.push({thumb:t,issuer:'',amount:'',type:null,cat:null,auto:false})}
+  renderReg();
+}
+function setP(ci,j,k,v,quiet){const p=card(ci).pending[j];p[k]=v;if(!quiet)renderReg()}
+function setPT(ci,j,t){const p=card(ci).pending[j];p.type=t;p.cat=visCats(t)[0].name;p.auto=false;renderReg()}
+function resetPT(ci,j){const p=card(ci).pending[j];p.type=null;p.cat=null;p.auto=false;renderReg()}
+function learnP(ci,j){
+  const p=card(ci).pending[j];const k=norm(p.issuer);
+  if(k&&store.learned[k]&&(!p.type||p.auto)){const L=store.learned[k];p.type=L.type;p.cat=L.cat;p.auto=true;renderReg()}
+}
+function delP(ci,j){card(ci).pending.splice(j,1);renderReg()}
+function addP(ci,j){
+  const c=card(ci),p=c.pending[j];
+  if(!(+p.amount>0)){toast('金額を入力してください');return}
+  c.lines.push({type:p.type,cat:p.cat,amount:+p.amount,invoice:p.type==='sales'&&ci!=='o',thumb:p.thumb,issuer:p.issuer});
+  const k=norm(p.issuer);
+  if(k){store.learned[k]={type:p.type,cat:p.cat,issuer:p.issuer};persist();toast('「'+p.issuer+'」の判別を覚えました')}
+  c.pending.splice(j,1);renderReg();
+}
+function saveReport(){
+  const clean=c=>c.lines.filter(l=>+l.amount>0).map(l=>{
+    const cat=(l.cat==='その他'&&l.customName&&l.customName.trim())?l.customName.trim():l.cat;
+    return {type:l.type,cat,amount:+l.amount,invoice:!!l.invoice,thumb:l.thumb||'',issuer:l.issuer||''};
+  });
+  const sites=draft.sites.map(s=>({contractor:s.contractor.trim(),name:s.name.trim(),lines:clean(s)})).filter(s=>s.contractor||s.name||s.lines.length);
+  const other={lines:clean(draft.other)};
+  if(!sites.some(s=>s.lines.length)&&!other.lines.length){toast('金額を1件以上入力してください');return}
+  const id=draft.editId||(draft.date+'_'+ME.uid);const old=store.reports[id];
+  const rep={id,date:draft.date,sites,other,uid:old?old.uid:ME.uid,userName:old?old.userName:ME.name};
+  store.reports[id]=rep;PF.saveReport(id,rep);
+  [...sites.flatMap(s=>s.lines),...other.lines].forEach(l=>useCat(l.type,l.cat));
+  sites.forEach(s=>{if(s.contractor&&!store.contractors.includes(s.contractor))store.contractors.push(s.contractor)});
+  persist();const sd=draft.date;draft=newDraft();
+  if(IS_ADMIN){mon=sd.slice(0,7);openDay=id;go('list');toast('日報を保存しました')}
+  else{const dd=new Date(sd+'T00:00:00');flash=(dd.getMonth()+1)+'月'+dd.getDate()+'日の日報を保存しました';go('reg')}
+}
+function editReport(d){
+  const r=store.reports[d];
+  draft={editId:d,date:r.date,sites:r.sites.length?r.sites.map(s=>({contractor:s.contractor,name:s.name,lines:s.lines.map(l=>({...l})),pending:[]})):[newSite()],other:{lines:r.other.lines.map(l=>({...l})),pending:[]}};
+  go('reg');
+}
+function delReport(d){
+  if(arm!==d){arm=d;renderList();return}
+  delete store.reports[d];PF.deleteReport(d);arm=null;openDay=null;persist();renderList();toast('日報を削除しました');
+}
+
+/* ================= 集計ヘルパー ================= */
+function repLines(r){const o=[];r.sites.forEach(s=>s.lines.forEach(l=>o.push({...l,contractor:s.contractor,site:s.name})));r.other.lines.forEach(l=>o.push({...l,contractor:'',site:'その他'}));return o}
+const monthReps=m=>Object.values(store.reports).filter(r=>r.date.startsWith(m)).sort((a,b)=>a.date<b.date?-1:1);
+function sums(lines){let s=0,e=0;lines.forEach(l=>{if(l.type==='sales')s+=l.amount;else e+=l.amount});return{s,e,p:s-e}}
+function colOrder(reps,t){
+  const used=new Set();reps.forEach(r=>repLines(r).forEach(l=>{if(l.type===t)used.add(l.cat)}));
+  const base=store.cats[t].map(c=>c.name);
+  return [...base.filter(n=>used.has(n)),...[...used].filter(n=>!base.includes(n))];
+}
+
+/* ================= 日報一覧（管理画面） ================= */
+function renderList(){
+  const reps=monthReps(mon);
+  let html=`<h2>日報一覧</h2>${mnav()}`;
+  if(!reps.length){
+    html+=`<div class="empty">この月の日報はまだありません。<div class="acts" style="justify-content:center"><button class="btn pri" onclick="go('reg')">日報を登録する</button></div></div>`;
+  }else{
+    const sc=colOrder(reps,'sales'),ec=colOrder(reps,'expense');
+    const n=sc.length+ec.length+5;
+    const tot={};
+    let rows='';
+    reps.forEach(r=>{
+      const L=repLines(r);const sm=sums(L);
+      const by=(t,c)=>L.filter(l=>l.type===t&&l.cat===c).reduce((a,l)=>a+l.amount,0);
+      sc.forEach(c=>tot['s'+c]=(tot['s'+c]||0)+by('sales',c));
+      ec.forEach(c=>tot['e'+c]=(tot['e'+c]||0)+by('expense',c));
+      tot.s=(tot.s||0)+sm.s;tot.e=(tot.e||0)+sm.e;tot.p=(tot.p||0)+sm.p;
+      const d=new Date(r.date+'T00:00:00');
+      rows+=`<tr class="day" onclick="tog('${r.id}')"><td>${d.getMonth()+1}/${d.getDate()}（${WD[d.getDay()]}）<br><small class="who">${esc(r.userName||'')}</small></td>
+        ${sc.map(c=>`<td>${by('sales',c)?yen(by('sales',c)):'–'}</td>`).join('')}<td class="tot">${yen(sm.s)}</td>
+        ${ec.map(c=>`<td>${by('expense',c)?yen(by('expense',c)):'–'}</td>`).join('')}<td class="tot">${yen(sm.e)}</td>
+        <td class="tot ${sm.p>=0?'pos':'neg'}">${yen(sm.p)}</td></tr>
+        <tr class="det" id="d-${r.id}" ${openDay===r.id?'':'hidden'}><td colspan="${n}">${detailHTML(r)}</td></tr>`;
+    });
+    html+=`<p class="note">日付の行をタップすると、その日の現場ごとの内訳が開きます。</p>
+    <div class="tw"><table class="tbl"><thead>
+      <tr><th></th><th class="gs" colspan="${sc.length+1}">売上</th><th class="ge" colspan="${ec.length+1}">経費</th><th></th></tr>
+      <tr><th>日付</th>${sc.map(c=>`<th>${esc(c)}</th>`).join('')}<th>売上計</th>${ec.map(c=>`<th>${esc(c)}</th>`).join('')}<th>経費計</th><th>収支</th></tr>
+    </thead><tbody>${rows}</tbody>
+    <tfoot><tr><td>月合計</td>${sc.map(c=>`<td>${yen(tot['s'+c]||0)}</td>`).join('')}<td>${yen(tot.s||0)}</td>${ec.map(c=>`<td>${yen(tot['e'+c]||0)}</td>`).join('')}<td>${yen(tot.e||0)}</td><td class="${(tot.p||0)>=0?'pos':'neg'}">${yen(tot.p||0)}</td></tr></tfoot></table></div>`;
+  }
+  $('#v-list').innerHTML=html;
+}
+function detailHTML(r){
+  const sec=(title,lines)=>`<div class="dsite"><b>${esc(title)}</b><ul>${lines.map(l=>`<li>${T[l.type]}／${esc(l.cat)}　${yen(l.amount)}${l.type==='sales'&&l.invoice?' <span class="tag">会社請求</span>':''}${l.thumb?`<img src="${l.thumb}" alt="伝票">`:''}</li>`).join('')}</ul></div>`;
+  let h=`<p class="note" style="margin:0 0 6px">入力した人：${esc(r.userName||'不明')}</p>`;
+  h+=r.sites.map((s,i)=>sec((s.contractor||'元請け未入力')+'／'+(s.name||'現場名なし'),s.lines)).join('');
+  if(r.other.lines.length)h+=sec('その他の経費・売上',r.other.lines);
+  h+=`<div class="acts"><button class="btn sm" onclick="editReport('${r.id}')">編集</button><button class="btn sm danger" onclick="delReport('${r.id}')">${arm===r.id?'本当に削除する':'削除'}</button></div>`;
+  return h;
+}
+function tog(d){openDay=openDay===d?null:d;arm=null;const e=document.getElementById('d-'+d);if(e)e.hidden=openDay!==d;document.querySelectorAll('tr.det').forEach(x=>{if(x.id!=='d-'+d)x.hidden=true})}
+
+/* ================= 分析 ================= */
+function renderAna(){
+  const reps=monthReps(mon);const L=reps.flatMap(repLines);const sm=sums(L);
+  let html=`<h2>分析</h2>${mnav()}`;
+  if(!reps.length&&!Object.keys(store.reports).length){$('#v-ana').innerHTML=html+`<div class="empty">日報がまだありません。</div>`;return}
+  const days=reps.length;
+  html+=`<div class="kpis">
+    <div class="kpi"><small>売上</small><b>${yen(sm.s)}</b></div>
+    <div class="kpi"><small>経費</small><b>${yen(sm.e)}</b></div>
+    <div class="kpi"><small>収支</small><b class="${sm.p>=0?'pos':'neg'}">${yen(sm.p)}</b></div>
+    <div class="kpi"><small>稼働${days}日・1日平均の収支</small><b>${days?yen(sm.p/days):'–'}</b></div></div>`;
+  // 月別推移
+  const ms=[];{const [y,m]=mon.split('-').map(Number);for(let i=5;i>=0;i--){const d=new Date(y,m-1-i,1);ms.push(d.getFullYear()+'-'+pad(d.getMonth()+1))}}
+  const md=ms.map(m=>({m,...sums(monthReps(m).flatMap(repLines))}));
+  const mx=Math.max(1,...md.map(x=>Math.max(x.s,x.e)));
+  html+=`<h2>月ごとの推移（直近6か月）</h2><div class="blk"><div class="legend"><span><i style="background:var(--sale)"></i>売上</span><span><i style="background:var(--exp)"></i>経費</span></div>
+    <div class="trend">${md.map(x=>`<div class="tm"><em class="${x.p>=0?'pos':'neg'}">${x.s||x.e?Math.round(x.p/1000)+'千':''}</em><div class="tb"><i class="s" style="height:${x.s/mx*112}px"></i><i class="e" style="height:${x.e/mx*112}px"></i></div><small>${+x.m.slice(5)}月</small></div>`).join('')}</div>
+    <p class="note" style="margin:0">棒の上の数字は、その月の収支（千円）です。</p></div>`;
+  // 元請け別
+  const cm={};reps.forEach(r=>r.sites.forEach(s=>{const k=s.contractor||'元請け未入力';const x=cm[k]||(cm[k]={s:0,n:0});x.n++;s.lines.forEach(l=>{if(l.type==='sales')x.s+=l.amount})}));
+  const cl=Object.entries(cm).sort((a,b)=>b[1].s-a[1].s);const cmax=Math.max(1,...cl.map(x=>x[1].s));
+  html+=`<h2>元請け別の売上（${mLabel(mon)}）</h2><div class="blk">${cl.length?cl.map(([k,v])=>`<div class="hb"><span>${esc(k)}</span><div class="bar"><i style="width:${v.s/cmax*100}%;background:var(--sale)"></i></div><span>${yen(v.s)}（${v.n}件）</span></div>`).join(''):'<div class="empty">データなし</div>'}</div>`;
+  // 経費内訳
+  const em={};L.forEach(l=>{if(l.type==='expense')em[l.cat]=(em[l.cat]||0)+l.amount});
+  const el=Object.entries(em).sort((a,b)=>b[1]-a[1]);
+  html+=`<h2>経費の内訳（${mLabel(mon)}）</h2><div class="blk">${el.length?el.map(([k,v])=>`<div class="hb"><span>${esc(k)}</span><div class="bar"><i style="width:${v/sm.e*100}%;background:var(--exp)"></i></div><span>${Math.round(v/sm.e*100)}%　${yen(v)}</span></div>`).join(''):'<div class="empty">データなし</div>'}</div>`;
+  // 曜日別
+  const wd=Array.from({length:7},()=>({p:0,n:0}));
+  ms.forEach(m=>monthReps(m).forEach(r=>{const g=new Date(r.date+'T00:00:00').getDay();wd[g].p+=sums(repLines(r)).p;wd[g].n++}));
+  const wa=wd.map(x=>x.n?x.p/x.n:0);const wmax=Math.max(1,...wa.map(Math.abs));
+  html+=`<h2>曜日ごとの平均収支（直近6か月）</h2><div class="blk">${[1,2,3,4,5,6,0].map(g=>`<div class="hb"><span>${WD[g]}曜日</span><div class="bar"><i style="width:${Math.abs(wa[g])/wmax*100}%;background:${wa[g]>=0?'var(--pos)':'var(--neg)'}"></i></div><span>${wd[g].n?yen(wa[g]):'–'}</span></div>`).join('')}</div>
+  <p class="note">元請け別は、現場に紐づけた売上のみの集計です。経費は現場に紐づけない分があるため、収支は出していません。</p>`;
+  const pmax=Math.max(1,...md.map(x=>Math.abs(x.p)));
+  html+=`<h2>月ごとの収支（直近6か月）</h2><div class="blk">${md.map(x=>`<div class="hb"><span>${+x.m.slice(5)}月</span><div class="bar"><i style="width:${Math.abs(x.p)/pmax*100}%;background:${x.p>=0?'var(--pos)':'var(--neg)'}"></i></div><span class="${x.p>=0?'pos':'neg'}">${x.s||x.e?yen(x.p):'–'}</span></div>`).join('')}</div>`;
+  $('#v-ana').innerHTML=html;
+}
+
+/* ================= 請求書 ================= */
+function renderInv(){
+  const reps=monthReps(mon);const by={};
+  reps.forEach(r=>r.sites.forEach(s=>s.lines.forEach(l=>{
+    if(l.type==='sales'&&l.invoice){const k=s.contractor||'（元請け未入力）';(by[k]=by[k]||[]).push({date:r.date,site:s.name,cat:l.cat,amount:l.amount})}
+  })));
+  const names=Object.keys(by);
+  let html=`<h2>請求書</h2>${mnav()}<p class="note">売上の「会社請求」にチェックを入れた分を、元請けごとにまとめます。</p>`;
+  if(!names.length){$('#v-inv').innerHTML=html+`<div class="empty">この月に会社請求の売上はありません。</div>`;return}
+  html+=names.map(k=>{const t=by[k].reduce((a,x)=>a+x.amount,0);return `<div class="ccard ${invSel===k?'on':''}"><div><b>${esc(k)}</b><br><small>${by[k].length}件</small></div><div><b>${yen(t)}</b> <button class="btn sm" onclick="invSel=this.dataset.k;renderInv()" data-k="${esc(k)}">請求書を見る</button></div></div>`}).join('');
+  if(invSel&&by[invSel]){
+    const rows=by[invSel].sort((a,b)=>a.date<b.date?-1:1);const total=rows.reduce((a,x)=>a+x.amount,0);
+    const [y,m]=mon.split('-').map(Number);const last=new Date(y,m,0);
+    const no='NH-'+y+pad(m)+'-'+(names.indexOf(invSel)+1);
+    html+=`<div class="acts"><button class="btn ink" onclick="window.print()">印刷／PDFで保存</button></div>
+    <div id="invdoc"><h1>請求書</h1>
+      <div class="meta"><div><b style="font-size:17px">${esc(invSel)} 御中</b></div><div style="text-align:right">請求番号：${no}<br>請求日：${last.getFullYear()}年${last.getMonth()+1}月${last.getDate()}日</div></div>
+      <div>${mLabel(mon)}分の作業について、下記のとおりご請求申し上げます。</div>
+      <div class="total" style="text-align:left;border:0;padding:8px 0 0">ご請求金額　${yen(total)}</div>
+      <table><thead><tr><th>日付</th><th>現場名</th><th>内容</th><th class="r">金額</th></tr></thead><tbody>
+      ${rows.map(x=>{const d=new Date(x.date+'T00:00:00');return `<tr><td>${d.getMonth()+1}月${d.getDate()}日</td><td>${esc(x.site||'—')}</td><td>${esc(x.cat)}</td><td class="r">${yen(x.amount)}</td></tr>`}).join('')}
+      </tbody></table>
+      <div class="total">合計　${yen(total)}</div>
+      <div style="margin-top:22px;font-size:13px">N Homes</div>
+    </div>`;
+  }
+  $('#v-inv').innerHTML=html;
+}
+
+/* ================= 項目管理 ================= */
+function renderCat(){
+  const sec=t=>{
+    const all=store.cats[t];const vis=all.filter(catVisible).sort((a,b)=>((a.name==='その他')-(b.name==='その他'))||(b.count-a.count));const hid=all.filter(c=>!catVisible(c));
+    return `<div class="blk"><h3>${T[t]}の項目</h3>
+      ${vis.map(c=>`<div class="catrow"><span>${esc(c.name)}</span><small>${c.count}回使用・最終 ${c.last.slice(5).replace('-','/')}</small></div>`).join('')}
+      ${hid.length?`<p class="note" style="margin-top:10px">1か月使われず非表示になった項目</p>${hid.map(c=>`<div class="catrow"><span>${esc(c.name)} <span class="tag">非表示</span></span><button class="btn sm" onclick="reviveCat('${t}',this.dataset.n)" data-n="${esc(c.name)}">復活</button></div>`).join('')}`:''}
+      <div class="addrow"><input type="text" id="nc-${t}" placeholder="新しい項目名"><button class="btn pri" onclick="addCat('${t}')">追加</button></div></div>`;
+  };
+  const lr=Object.entries(store.learned);
+  $('#v-cat').innerHTML=`<h2>項目の管理</h2>
+    <p class="note">よく使う項目ほど上に並びます。1か月使われなかった項目は自動で非表示になり、同じ名前でもう一度入力すると戻ります。「その他」は常に表示されます。</p>
+    ${sec('sales')}${sec('expense')}
+    <div class="blk"><h3>覚えた書類（自動判別のルール）</h3>
+      ${lr.length?lr.map(([k,v])=>`<div class="catrow"><span>${esc(v.issuer||k)}<br><small>${T[v.type]}／${esc(v.cat)}</small></span><button class="btn sm" onclick="forget(this.dataset.k)" data-k="${esc(k)}">忘れる</button></div>`).join(''):'<p class="note" style="margin:0">まだありません。伝票の発行元を入力して追加すると、ここに溜まっていきます。</p>'}
+    </div>`;
+}
+function addCat(t){
+  const el=$('#nc-'+t);const n=el.value.trim();if(!n)return;
+  const c=store.cats[t].find(x=>x.name===n);
+  if(c){c.last=TODAY}else store.cats[t].push({name:n,last:TODAY,count:0});
+  persist();renderCat();toast('「'+n+'」を追加しました');
+}
+function reviveCat(t,n){const c=store.cats[t].find(x=>x.name===n);if(c){c.last=TODAY;persist();renderCat()}}
+function forget(k){delete store.learned[k];persist();renderCat()}
+
+/* ================= 接続設定（Firebase） ================= */
+const FIREBASE_CONFIG={apiKey:"AIzaSyDGgbk8N4XKg95GauXSFoE1z7A65-zf1Xw",authDomain:"nhomes-daicho.firebaseapp.com",projectId:"nhomes-daicho",storageBucket:"nhomes-daicho.firebasestorage.app",messagingSenderId:"906759696557",appId:"1:906759696557:web:4532cdce69c813393b9624"};
+const IS_ADMIN=true;
+const MAX_USERS=5;
+let PF=null,ME=null;
+
+function errText(e){
+  const c=(e&&(e.code||e.message))||'';
+  if(/invalid-credential|wrong-password|user-not-found|invalid-email|bad/.test(c))return 'ユーザー名かパスワードが違います';
+  if(/email-already-in-use/.test(c))return 'そのユーザー名はすでに使われています';
+  if(/weak-password/.test(c))return 'パスワードは6文字以上にしてください';
+  if(/network/.test(c))return '通信できません。電波を確認してください';
+  if(/inactive/.test(c))return 'このアカウントは停止されています';
+  if(/too-many/.test(c))return '試行回数が多すぎます。しばらくしてからやり直してください';
+  if(/permission/.test(c))return '権限がありません';
+  return 'うまくいきませんでした（'+c+'）';
+}
+const uname=u=>String(u||'').trim().toLowerCase();
+const validU=u=>/^[a-z0-9_.-]{3,20}$/.test(u);
+
+/* ---- デモ用（Firebase未接続。この端末の中だけに保存） ---- */
+function makeDemo(){
+  const K='nhomes_demo_v1';
+  let d;try{d=JSON.parse(localStorage.getItem(K))}catch(e){}
+  if(!d)d={users:[],reports:{},meta:{},setup:false};
+  const save=()=>{try{localStorage.setItem(K,JSON.stringify(d))}catch(e){toast('保存容量がいっぱいです')}};
+  let cb=null;
+  return{mode:'demo',
+    async init(){},
+    async setupNeeded(){return !d.setup},
+    async firstSetup(name,u,p){d.users.push({uid:'u'+Date.now(),name,username:u,password:p,role:'admin',active:true});d.setup=true;save();return this.login(u,p)},
+    async login(u,p){const x=d.users.find(z=>z.username===u&&z.password===p);if(!x)throw{code:'bad'};if(x.active===false)throw{code:'inactive'};return{uid:x.uid,name:x.name,username:x.username,role:x.role}},
+    async logout(){cb=null},
+    async subscribe(me,f){cb=f;['cats','learned','contractors'].forEach(k=>{if(d.meta[k])f(k,d.meta[k])});
+      const o={};Object.entries(d.reports).forEach(([id,r])=>{if(me.role==='admin'||r.uid===me.uid)o[id]=r});f('reports',o)},
+    async saveReport(id,r){d.reports[id]=r;save()},
+    async saveReports(m){Object.assign(d.reports,m);save()},
+    async deleteReport(id){delete d.reports[id];save()},
+    async saveMeta(k,v){d.meta[k]=v;save()},
+    async listUsers(){return d.users.map(({password,...x})=>x)},
+    async addUser(name,u,p,role){if(d.users.some(x=>x.username===u))throw{code:'email-already-in-use'};d.users.push({uid:'u'+Date.now(),name,username:u,password:p,role,active:true});save()},
+    async updateUser(uid,patch){const x=d.users.find(z=>z.uid===uid);Object.assign(x,patch);save()},
+    async changePassword(me,old,nw){const x=d.users.find(z=>z.uid===me.uid);if(x.password!==old)throw{code:'bad'};x.password=nw;save()}
+  };
+}
+
+/* ---- 本番（Firebase） ---- */
+async function makeFirebase(cfg){
+  const B='https://www.gstatic.com/firebasejs/10.12.2/';
+  const A=await import(B+'firebase-app.js'),Au=await import(B+'firebase-auth.js'),F=await import(B+'firebase-firestore.js');
+  const app=A.initializeApp(cfg),auth=Au.getAuth(app),db=F.getFirestore(app);
+  await Au.setPersistence(auth,Au.inMemoryPersistence);   // 開くたびにログインを求める
+  const em=u=>u+'@nhomes-login.example';
+  let unsubs=[];
+  const guard=p=>p.catch(e=>{if(!/network/.test(e.code||''))console.warn(e);toast('保存に失敗しました。電波と権限を確認してください');throw e});
+  return{mode:'firebase',
+    async init(){},
+    async setupNeeded(){const s=await F.getDoc(F.doc(db,'meta','setup'));return !s.exists()},
+    async firstSetup(name,u,p){
+      const c=await Au.createUserWithEmailAndPassword(auth,em(u),p);
+      await F.setDoc(F.doc(db,'users',c.user.uid),{name,username:u,role:'admin',active:true});
+      await F.setDoc(F.doc(db,'meta','setup'),{at:Date.now()});
+      return{uid:c.user.uid,name,username:u,role:'admin'};
+    },
+    async login(u,p){
+      const c=await Au.signInWithEmailAndPassword(auth,em(u),p);
+      const s=await F.getDoc(F.doc(db,'users',c.user.uid));
+      if(!s.exists()||s.data().active===false){await Au.signOut(auth);throw{code:'inactive'}}
+      return{uid:c.user.uid,...s.data()};
+    },
+    async logout(){unsubs.forEach(f=>f());unsubs=[];await Au.signOut(auth)},
+    async subscribe(me,cb){
+      ['cats','learned','contractors'].forEach(k=>unsubs.push(F.onSnapshot(F.doc(db,'meta',k),s=>{if(s.exists()){try{cb(k,JSON.parse(s.data().v))}catch(e){}}},()=>{})));
+      const q=me.role==='admin'?F.collection(db,'reports'):F.query(F.collection(db,'reports'),F.where('uid','==',me.uid));
+      unsubs.push(F.onSnapshot(q,s=>{const o={};s.forEach(x=>o[x.id]=x.data());cb('reports',o)},()=>toast('日報を読み込めませんでした')));
+    },
+    saveReport(id,r){return guard(F.setDoc(F.doc(db,'reports',id),r))},
+    async saveReports(m){const ids=Object.keys(m);for(let i=0;i<ids.length;i+=400){const b=F.writeBatch(db);ids.slice(i,i+400).forEach(id=>b.set(F.doc(db,'reports',id),m[id]));await guard(b.commit())}},
+    deleteReport(id){return guard(F.deleteDoc(F.doc(db,'reports',id)))},
+    saveMeta(k,v){return guard(F.setDoc(F.doc(db,'meta',k),{v:JSON.stringify(v)}))},
+    async listUsers(){const s=await F.getDocs(F.collection(db,'users'));return s.docs.map(x=>({uid:x.id,...x.data()}))},
+    async addUser(name,u,p,role){
+      const sub=A.initializeApp(cfg,'sub'+Date.now()),sa=Au.getAuth(sub);
+      try{const c=await Au.createUserWithEmailAndPassword(sa,em(u),p);await Au.signOut(sa);
+        await F.setDoc(F.doc(db,'users',c.user.uid),{name,username:u,role,active:true});
+      }finally{try{await A.deleteApp(sub)}catch(e){}}
+    },
+    async updateUser(uid,patch){await F.updateDoc(F.doc(db,'users',uid),patch)},
+    async changePassword(me,old,nw){
+      await Au.reauthenticateWithCredential(auth.currentUser,Au.EmailAuthProvider.credential(em(me.username),old));
+      await Au.updatePassword(auth.currentUser,nw);
+    }
+  };
+}
+
+/* ================= ログイン・起動 ================= */
+function loginMsg(m){const e=$('#lmsg');if(e)e.textContent=m||''}
+function loginView(setup){
+  const demo=PF.mode==='demo';
+  $('#login').hidden=false;
+  $('#login').innerHTML=`<div class="lcard">
+    <div class="lbrand"><b>N Homes</b><span>${IS_ADMIN?'管理用':'作業員用'}</span></div>
+    ${demo?`<p class="note demo">デモモードです。データはこの端末の中だけに保存され、他の人とは共有されません。</p>`:''}
+    ${setup?`<h2>はじめての設定</h2><p class="note">最初の管理者を作ります。ここで決めたユーザー名とパスワードで、次回からログインします。</p>
+      <label class="f">表示名<input type="text" id="l-name" placeholder="例：山田"></label>`:`<h2>ログイン</h2>`}
+    <label class="f">ユーザー名（半角英数字）<input type="text" id="l-u" autocapitalize="none" autocomplete="username" placeholder="例：yamada"></label>
+    <label class="f">パスワード${setup?'（6文字以上）':''}<input type="password" id="l-p" autocomplete="${setup?'new-password':'current-password'}"></label>
+    <p class="err" id="lmsg"></p>
+    <button class="btn pri" style="width:100%;padding:13px" id="l-go">${setup?'管理者を作って始める':'ログイン'}</button>
+  </div>`;
+  const go=async()=>{
+    const u=uname($('#l-u').value),p=$('#l-p').value;
+    if(!validU(u)){loginMsg('ユーザー名は半角の英数字（3〜20文字）で入力してください');return}
+    if(p.length<6){loginMsg('パスワードは6文字以上です');return}
+    $('#l-go').disabled=true;loginMsg('');
+    try{
+      if(setup){const n=$('#l-name').value.trim();if(!n){loginMsg('表示名を入力してください');$('#l-go').disabled=false;return}ME=await PF.firstSetup(n,u,p)}
+      else ME=await PF.login(u,p);
+      if(IS_ADMIN&&ME.role!=='admin'){await PF.logout();ME=null;loginMsg('このページは管理者用です。作業員用のページから入ってください');$('#l-go').disabled=false;return}
+      enter();
+    }catch(e){loginMsg(errText(e));$('#l-go').disabled=false}
+  };
+  $('#l-go').onclick=go;
+  $('#l-p').onkeydown=ev=>{if(ev.key==='Enter')go()};
+}
+function onRemote(k,v){
+  if(k==='reports')store.reports=v;else store[k]=v;
+  if(tab!=='reg')render();
+}
+async function enter(){
+  $('#login').hidden=true;
+  $('#hme').textContent=ME.name;
+  await PF.subscribe(ME,onRemote);
+  go('reg');
+}
+async function boot(){
+  try{
+    const cfg=FIREBASE_CONFIG;
+    PF=cfg.apiKey?await makeFirebase(cfg):makeDemo();
+  }catch(e){
+    $('#login').hidden=false;
+    $('#login').innerHTML='<div class="lcard"><h2>接続できません</h2><p class="note">サーバーに接続できませんでした。電波を確認して、もう一度開いてください。</p></div>';
+    return;
+  }
+  await PF.init();
+  let setup=false;
+  if(IS_ADMIN){try{setup=await PF.setupNeeded()}catch(e){setup=false}}
+  loginView(setup);
+}
+async function logout(){try{await PF.logout()}catch(e){}location.reload()}
+
+/* ================= 設定（アカウント・メンバー・バックアップ） ================= */
+let USERS=[],pendingImport=null;
+function renderSet(){
+  const demo=PF.mode==='demo';
+  let h=`<h2>${IS_ADMIN?'設定':'アカウント'}</h2>
+    ${demo?`<p class="note demo">デモモードです。データはこの端末の中だけに保存され、他の人とは共有されません。</p>`:''}
+    <div class="blk"><h3>ログイン中</h3>
+      <p style="margin:0 0 10px">${esc(ME.name)}（${ME.role==='admin'?'管理者':'作業員'}）　ID：${esc(ME.username||'')}</p>
+      <h3 style="margin-top:14px">パスワードを変える</h3>
+      <label class="f">今のパスワード<input type="password" id="pw0" autocomplete="current-password"></label>
+      <label class="f">新しいパスワード（6文字以上）<input type="password" id="pw1" autocomplete="new-password"></label>
+      <button class="btn" onclick="changePw()">変更する</button>
+      <div style="height:14px"></div>
+      <button class="btn danger" onclick="logout()">ログアウト</button>
+    </div>`;
+  if(IS_ADMIN)h+=`<div id="mem"></div><div id="bak"></div>`;
+  $('#v-set').innerHTML=h;
+  if(IS_ADMIN){loadMembers();drawBackup()}
+}
+async function changePw(){
+  const a=$('#pw0').value,b=$('#pw1').value;
+  if(b.length<6){toast('新しいパスワードは6文字以上です');return}
+  try{await PF.changePassword(ME,a,b);$('#pw0').value='';$('#pw1').value='';toast('パスワードを変えました')}catch(e){toast(errText(e))}
+}
+async function loadMembers(){try{USERS=await PF.listUsers()}catch(e){USERS=[]}drawMembers()}
+const activeCount=()=>USERS.filter(u=>u.active!==false).length;
+function drawMembers(){
+  const el=$('#mem');if(!el)return;
+  el.innerHTML=`<div class="blk"><h3>メンバー管理（使用中 ${activeCount()}／${MAX_USERS}人）</h3>
+    ${USERS.map(u=>`<div class="catrow"><span>${esc(u.name)}<br><small>ID：${esc(u.username)}　${u.role==='admin'?'管理者':'作業員'}${u.active===false?'　停止中':''}</small></span>
+      <span class="mbtn">${u.uid===ME.uid?'<small>（自分）</small>':`<button class="btn sm" onclick="toggleRole('${u.uid}')">${u.role==='admin'?'作業員にする':'管理者にする'}</button><button class="btn sm" onclick="toggleActive('${u.uid}')">${u.active===false?'再開':'停止'}</button>`}</span></div>`).join('')}
+    <h3 style="margin-top:16px">メンバーを追加</h3>
+    <label class="f">表示名<input type="text" id="mn" placeholder="例：田中"></label>
+    <label class="f">ユーザー名（半角英数字）<input type="text" id="mu" autocapitalize="none" placeholder="例：tanaka"></label>
+    <label class="f">パスワード（6文字以上）<input type="password" id="mp" autocomplete="new-password"></label>
+    <label class="f">役割<select id="mr"><option value="worker">作業員（登録だけ）</option><option value="admin">管理者（すべて）</option></select></label>
+    <button class="btn pri" onclick="addMember()">追加する</button>
+    <p class="note">パスワードを忘れたときは、そのメンバーを「停止」して、別のユーザー名で追加し直してください。停止すると、その人の枠が空きます。</p></div>`;
+}
+async function addMember(){
+  const n=$('#mn').value.trim(),u=uname($('#mu').value),p=$('#mp').value,r=$('#mr').value;
+  if(!n){toast('表示名を入力してください');return}
+  if(!validU(u)){toast('ユーザー名は半角の英数字（3〜20文字）です');return}
+  if(p.length<6){toast('パスワードは6文字以上です');return}
+  if(activeCount()>=MAX_USERS){toast('人数の上限（'+MAX_USERS+'人）です。使わない人を停止してください');return}
+  try{await PF.addUser(n,u,p,r);toast('「'+n+'」を追加しました');await loadMembers()}catch(e){toast(errText(e))}
+}
+async function toggleRole(uid){
+  const u=USERS.find(x=>x.uid===uid);if(!u)return;
+  const nr=u.role==='admin'?'worker':'admin';
+  try{await PF.updateUser(uid,{role:nr});await loadMembers()}catch(e){toast(errText(e))}
+}
+async function toggleActive(uid){
+  const u=USERS.find(x=>x.uid===uid);if(!u)return;
+  const to=u.active===false;
+  if(to&&activeCount()>=MAX_USERS){toast('人数の上限（'+MAX_USERS+'人）です');return}
+  if(!to&&u.role==='admin'&&USERS.filter(x=>x.role==='admin'&&x.active!==false).length<=1){toast('管理者が0人になるので停止できません');return}
+  try{await PF.updateUser(uid,{active:to});await loadMembers()}catch(e){toast(errText(e))}
+}
+
+/* ---- バックアップ ---- */
+function lastBackup(){try{return localStorage.getItem('nhomes_lastbackup')||''}catch(e){return''}}
+function drawBackup(){
+  const el=$('#bak');if(!el)return;
+  const lb=lastBackup();
+  el.innerHTML=`<div class="blk"><h3>バックアップ</h3>
+    <p class="note" style="margin-top:0">日報・項目・覚えた書類を、ファイルに書き出します。前回：${lb?esc(lb):'まだ書き出していません'}。週に1回を目安にしてください。</p>
+    <button class="btn pri" onclick="exportBackup()">バックアップを書き出す</button>
+    <div style="height:14px"></div>
+    <h3>バックアップから戻す</h3>
+    <p class="note" style="margin-top:0">同じ日の日報は上書きされ、ファイルにない日報はそのまま残ります。</p>
+    <label class="btn">ファイルを選ぶ<input type="file" accept=".json,application/json" hidden onchange="pickBackup(this.files[0]);this.value=''"></label>
+    <div id="imp">${pendingImport?impHTML():''}</div></div>`;
+}
+const impHTML=()=>`<div class="blk" style="margin-top:10px;background:var(--soft)"><p style="margin:0 0 8px">日報 ${Object.keys(pendingImport.reports).length}件を戻します。よろしいですか？</p><div class="acts"><button class="btn pri sm" onclick="doImport()">戻す</button><button class="btn sm" onclick="pendingImport=null;drawBackup()">やめる</button></div></div>`;
+async function exportBackup(){
+  const data={app:'nhomes',version:1,exportedAt:new Date().toISOString(),reports:store.reports,cats:store.cats,learned:store.learned,contractors:store.contractors};
+  const name='nhomes-backup-'+TODAY.replace(/-/g,'')+'.json';
+  const file=new File([JSON.stringify(data)],name,{type:'application/json'});
+  try{
+    if(navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({files:[file],title:name})}
+    else{const a=document.createElement('a');a.href=URL.createObjectURL(file);a.download=name;document.body.appendChild(a);a.click();a.remove()}
+    const t=new Date();try{localStorage.setItem('nhomes_lastbackup',(t.getMonth()+1)+'月'+t.getDate()+'日')}catch(e){}
+    drawBackup();toast('バックアップを書き出しました');
+  }catch(e){if(e&&e.name!=='AbortError')toast('書き出せませんでした')}
+}
+function pickBackup(f){
+  if(!f)return;const fr=new FileReader();
+  fr.onload=()=>{try{const o=JSON.parse(fr.result);if(o.app!=='nhomes'||!o.reports)throw 0;pendingImport=o;drawBackup()}catch(e){toast('バックアップのファイルではありません')}};
+  fr.readAsText(f);
+}
+async function doImport(){
+  const o=pendingImport;pendingImport=null;
+  try{
+    await PF.saveReports(o.reports);
+    if(o.cats){store.cats=o.cats;await PF.saveMeta('cats',o.cats)}
+    if(o.learned){store.learned=o.learned;await PF.saveMeta('learned',o.learned)}
+    if(o.contractors){store.contractors=o.contractors;await PF.saveMeta('contractors',o.contractors)}
+    Object.assign(store.reports,o.reports);
+    drawBackup();toast('バックアップから戻しました');
+  }catch(e){toast('戻せませんでした')}
+}
+
+boot();
+
+</script>
+</body>
+</html>
